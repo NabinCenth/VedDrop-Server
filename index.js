@@ -4,10 +4,17 @@ const multer =require('multer');
 const cors=require('cors');
 const fs = require("fs");
 const path = require("path");
+// Allow requests from your frontend
+app.use(cors({
+  origin: [
+    "http://localhost:5173", 
+    "https://your-netlify-site.netlify.app"
+  ]
+}));
 
 // Path to JSON database
 const dbPath = path.join(__dirname, "files.json");
-
+app.use('/files', express.static(path.join(__dirname, 'uploads')));
 // Load or initialize JSON database
 if (fs.existsSync(dbPath)) {
   fileDB = JSON.parse(fs.readFileSync(dbPath));
@@ -21,14 +28,41 @@ function saveDB() {
 function generatePin() {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
-// Allow requests from your frontend
-app.use(cors({
-  origin: "http://localhost:5173"
-}));
+
 //Get Request 
 app.get('/',(req,res)=>{
     res.send("Hello from File Sharing Server");
     console.log("Request received at /");
+});
+//Get request for file access
+app.get('/upload/:pin', (req, res) => {
+    const pin = req.params.pin;
+  const fileEntry = fileDB[pin]; 
+   const now = new Date(); // current time
+  const expiryDate = new Date(fileEntry.expiry);
+  if (!fileEntry) {
+    return res.status(404).json({ error: 'PIN not found' });
+  }
+
+  
+
+  else if(now > expiryDate) {
+  // convert string to Date
+    return res.status(410).json({ error: 'PIN expired' }); // 410 Gone
+  }
+  else if (now < expiryDate){
+    const filePath = path.join(__dirname, "uploads", fileEntry.filename);
+    if (fs.existsSync(filePath)) {
+      const host = process.env.HOST || `http://localhost:${PORT}`;
+      return res.json(
+        { message: "File is ready",
+           filename: fileEntry.filename, 
+           url: `${host}/files/${fileEntry.filename}`,
+            size: fileEntry.size
+           });
+    }
+  }
+
 });
 //post request for file upload
 const storage = multer.diskStorage({
@@ -50,7 +84,8 @@ app.post('/upload',upload.single("file"),(req,res)=>{
   // Add entry to JSON DB
   fileDB[pin] = {
     filename: req.file.filename,   // file name saved with timestamp
-    expiry: expiryDate.toISOString()
+    expiry: expiryDate.toISOString(),
+    size: req.file.size
   };
 
   // Save JSON
@@ -94,6 +129,7 @@ setInterval(() => {
 }, 60 * 1000);
 
 
-app.listen(300,()=>{
-    console.log("Server is running on port 300");
-})
+const PORT = process.env.PORT || 3000; // fallback for local dev
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+});

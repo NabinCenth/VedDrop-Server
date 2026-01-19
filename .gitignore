@@ -29,7 +29,7 @@ files.json
 files.json
 
 # Ignore the entire uploads folder
-uploads/
+
 
 # Ignore node_modules (Standard for Node.js)
 node_modules/
