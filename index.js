@@ -11,7 +11,7 @@ console.log("📁 Base directory:", __dirname);
 app.use(cors({
   origin: [
     "http://localhost:5173", 
-    "https://veddrop.netlify.app/"
+    "https://veddrop.netlify.app"
   ]
 }));
 app.use((req, res, next) => {
