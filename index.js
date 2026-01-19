@@ -8,13 +8,17 @@ console.log("🚀 VedDrop server starting...");
 console.log("📁 Base directory:", __dirname);
 
 // Allow requests from your frontend
-app.use(cors({
+const corsOptions = {
   origin: [
     "http://localhost:5173",
     "https://veddrop.netlify.app"
   ],
-  methods: ["GET", "POST"],
-}));
+  methods: ["GET", "POST", "OPTIONS"],
+};
+
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions)); 
+
 
 app.use((req, res, next) => {
   console.log(`➡️ ${req.method} ${req.url}`);
