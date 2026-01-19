@@ -4,6 +4,9 @@ const multer =require('multer');
 const cors=require('cors');
 const fs = require("fs");
 const path = require("path");
+console.log("🚀 VedDrop server starting...");
+console.log("📁 Base directory:", __dirname);
+
 // Allow requests from your frontend
 app.use(cors({
   origin: [
@@ -11,15 +14,24 @@ app.use(cors({
     "https://veddrop.netlify.app/"
   ]
 }));
+app.use((req, res, next) => {
+  console.log(`➡️ ${req.method} ${req.url}`);
+  next();
+});
 
 // Path to JSON database
 const dbPath = path.join(__dirname, "files.json");
 app.use('/files', express.static(path.join(__dirname, 'uploads')));
 // Load or initialize JSON database
 let fileDB = {};
+
 if (fs.existsSync(dbPath)) {
   fileDB = JSON.parse(fs.readFileSync(dbPath));
+  console.log(`📦 Loaded files.json with ${Object.keys(fileDB).length} entries`);
+} else {
+  console.log("📦 files.json not found, starting with empty DB");
 }
+
 
 // Save JSON DB function
 function saveDB() {
@@ -37,10 +49,16 @@ app.get('/',(req,res)=>{
 });
 //Get request for file access
 app.get('/upload/:pin', (req, res) => {
-    const pin = req.params.pin;
-  const fileEntry = fileDB[pin]; 
-   const now = new Date(); // current time
-  const expiryDate = new Date(fileEntry.expiry);
+   const fileEntry = fileDB[pin];
+
+if (!fileEntry) {
+  console.log(`❌ PIN not found: ${pin}`);
+  return res.status(404).json({ error: 'PIN not found' });
+}
+
+const now = new Date();
+const expiryDate = new Date(fileEntry.expiry);
+
   if (!fileEntry) {
     return res.status(404).json({ error: 'PIN not found' });
   }
@@ -75,26 +93,36 @@ const storage = multer.diskStorage({
   }
 });
 const upload =multer({storage})
-app.post('/upload',upload.single("file"),(req,res)=>{
-     if (!req.file) return res.status(400).json({ message: "No file uploaded" });
+app.post('/upload', upload.single("file"), (req, res) => {
+  console.log("📤 Upload request received");
+
+  if (!req.file) {
+    console.log("❌ Upload failed: no file");
+    return res.status(400).json({ message: "No file uploaded" });
+  }
 
   const pin = generatePin();
-  const expiryDate = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+  const expiryDate = new Date(Date.now() + 10 * 60 * 1000);
 
-
-  // Add entry to JSON DB
   fileDB[pin] = {
-    filename: req.file.filename,   // file name saved with timestamp
+    filename: req.file.filename,
     expiry: expiryDate.toISOString(),
     size: req.file.size
   };
 
-  // Save JSON
   saveDB();
 
-  console.log("File uploaded:", req.file.filename, "PIN:", pin);
-  res.json({ message: "File uploaded successfully", pin, filename: req.file.filename });
+  console.log(`✅ File uploaded: ${req.file.originalname}`);
+  console.log(`🔐 PIN generated: ${pin}`);
+  console.log(`⏳ Expires at: ${expiryDate.toISOString()}`);
+
+  res.json({
+    message: "File uploaded successfully",
+    pin,
+    filename: req.file.filename
+  });
 });
+
 // Expired file eater
 setInterval(() => {
   const now = Date.now();
@@ -132,5 +160,6 @@ setInterval(() => {
 
 const PORT = process.env.PORT || 3000; // fallback for local dev
 app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+  console.log(`🟢 VedDrop server running on port ${PORT}`);
+  console.log(`🌐 Environment: ${process.env.NODE_ENV || "development"}`);
 });
