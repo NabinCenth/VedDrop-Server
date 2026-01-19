@@ -6,7 +6,12 @@ const fs = require("fs");
 const path = require("path");
 console.log("🚀 VedDrop server starting...");
 console.log("📁 Base directory:", __dirname);
+const uploadsDir = path.join(__dirname, "uploads");
 
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+  console.log("📂 uploads folder created");
+}
 // Allow requests from your frontend
 const corsOptions = {
   origin: [
