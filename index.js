@@ -8,7 +8,7 @@ const path = require("path");
 app.use(cors({
   origin: [
     "http://localhost:5173", 
-    "https://your-netlify-site.netlify.app"
+    "https://veddrop.netlify.app/"
   ]
 }));
 
@@ -16,6 +16,7 @@ app.use(cors({
 const dbPath = path.join(__dirname, "files.json");
 app.use('/files', express.static(path.join(__dirname, 'uploads')));
 // Load or initialize JSON database
+let fileDB = {};
 if (fs.existsSync(dbPath)) {
   fileDB = JSON.parse(fs.readFileSync(dbPath));
 }
