@@ -104,6 +104,8 @@ const storage = multer.diskStorage({
     cb(null, `${Date.now()}-${file.originalname}`); // prepend timestamp
   }
 });
+const upload = multer({ storage });
+
 app.post("/upload", (req, res) => {
   upload.single("file")(req, res, err => {
     if (err) {
