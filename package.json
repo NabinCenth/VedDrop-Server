@@ -1,22 +1,20 @@
 {
   "name": "server",
   "version": "1.0.0",
-  "description": "",
-  "license": "ISC",
-  "author": "NabinCenth",
   "type": "commonjs",
   "main": "index.js",
+  "author": "NabinCenth",
+  "license": "ISC",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon index.js",
     "start": "node index.js"
   },
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^5.2.1",
-    "fs": "^0.0.1-security",
-    "multer": "^2.0.2",
-    "nodemon": "^3.1.11",
-    "path": "^0.12.7"
+    "multer": "^2.0.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }

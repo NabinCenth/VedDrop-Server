@@ -60,6 +60,7 @@ app.get('/',(req,res)=>{
 });
 //Get request for file access
 app.get('/upload/:pin', (req, res) => {
+  const { pin } = req.params;
    const fileEntry = fileDB[pin];
 
 if (!fileEntry) {
@@ -97,42 +98,49 @@ const expiryDate = new Date(fileEntry.expiry);
 //post request for file upload
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "uploads"); // relative folder
+    cb(null, uploadsDir); // relative folder
   },
   filename: function (req, file, cb) {
     cb(null, `${Date.now()}-${file.originalname}`); // prepend timestamp
   }
 });
-const upload =multer({storage})
-app.post('/upload', upload.single("file"), (req, res) => {
-  console.log("📤 Upload request received");
+app.post("/upload", (req, res) => {
+  upload.single("file")(req, res, err => {
+    if (err) {
+      console.error("❌ Multer error:", err);
+      return res.status(500).json({ error: "File upload failed" });
+    }
 
-  if (!req.file) {
-    console.log("❌ Upload failed: no file");
-    return res.status(400).json({ message: "No file uploaded" });
-  }
+    console.log("📤 Upload request received");
 
-  const pin = generatePin();
-  const expiryDate = new Date(Date.now() + 10 * 60 * 1000);
+    if (!req.file) {
+      console.log("❌ No file received");
+      return res.status(400).json({ error: "No file uploaded" });
+    }
 
-  fileDB[pin] = {
-    filename: req.file.filename,
-    expiry: expiryDate.toISOString(),
-    size: req.file.size
-  };
+    const pin = generatePin();
+    const expiryDate = new Date(Date.now() + 10 * 60 * 1000);
 
-  saveDB();
+    fileDB[pin] = {
+      filename: req.file.filename,
+      expiry: expiryDate.toISOString(),
+      size: req.file.size
+    };
 
-  console.log(`✅ File uploaded: ${req.file.originalname}`);
-  console.log(`🔐 PIN generated: ${pin}`);
-  console.log(`⏳ Expires at: ${expiryDate.toISOString()}`);
+    saveDB();
 
-  res.json({
-    message: "File uploaded successfully",
-    pin,
-    filename: req.file.filename
+    console.log(`✅ File uploaded: ${req.file.originalname}`);
+    console.log(`🔐 PIN generated: ${pin}`);
+    console.log(`⏳ Expires at: ${expiryDate.toISOString()}`);
+
+    return res.json({
+      message: "File uploaded successfully",
+      pin,
+      filename: req.file.filename
+    });
   });
 });
+
 
 // Expired file eater
 setInterval(() => {
