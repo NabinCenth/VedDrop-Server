@@ -13,15 +13,23 @@ if (!fs.existsSync(uploadsDir)) {
   console.log("📂 uploads folder created");
 }
 // Allow requests from your frontend
-const corsOptions = {
-  origin: [
-    "http://localhost:5173",
-    "https://veddrop.netlify.app"
-  ],
-  methods: ["GET", "POST", "OPTIONS"],
-};
+const allowedOrigins = [
+  "http://localhost:5173",        // local frontend
+  "https://veddrop.netlify.app"   // production frontend
+];
 
-app.use(cors(corsOptions));
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true); // allow Postman / curl
+    if (allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  methods: ["GET", "POST", "OPTIONS"],
+  credentials: true
+}));
 
 
 
