@@ -34,3 +34,4 @@ files.json
 # Ignore node_modules (Standard for Node.js)
 node_modules/
 files.json
+process.env
