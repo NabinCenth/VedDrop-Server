@@ -35,3 +35,4 @@ files.json
 node_modules/
 files.json
 process.env
+.env
