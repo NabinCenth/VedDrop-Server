@@ -15,7 +15,8 @@ if (!fs.existsSync(uploadsDir)) {
 // Allow requests from your frontend
 const allowedOrigins = [
   "http://localhost:5173",        // local frontend
-  "https://veddrop.netlify.app"   // production frontend
+  "https://veddrop.netlify.app",   // production frontend
+  "https://veddrop.bedprasadpokharel.com.np"
 ];
 
 app.use(cors({
