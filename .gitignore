@@ -11,6 +11,7 @@ node_modules
 dist
 dist-ssr
 *.local
+*.git
 
 # Editor directories and files
 .vscode/*
@@ -36,3 +37,4 @@ node_modules/
 files.json
 process.env
 .env
+API.md
