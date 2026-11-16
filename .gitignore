@@ -27,10 +27,6 @@ dist-ssr
 files.json
 \files.json
 # Ignore the JSON database
-files.json
-
-# Ignore the entire uploads folder
-
 
 # Ignore node_modules (Standard for Node.js)
 node_modules/
