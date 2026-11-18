@@ -3,6 +3,7 @@ import cors from "cors";
 import type { Request, Response } from "express";
 import "dotenv/config";
 import { uploadRouter } from "./routes/upload.route.js";
+import { complete } from "./routes/complete.route.js";
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -13,6 +14,7 @@ app.use(
   }),
 );
 app.use(uploadRouter);
+app.use(complete);
 app.get("/", (req: Request, res: Response) => {
   
   res.send("Server is running");

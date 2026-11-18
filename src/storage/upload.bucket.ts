@@ -15,10 +15,3 @@ signableHeaders: new Set(["content-type"])
 })
 }
 
-const url = await PutUrl("fileType","fileName",456,"873465");
-
-const parsedUrl = new URL(url);
-
-console.log(
-  parsedUrl.searchParams.get("X-Amz-SignedHeaders")
-);

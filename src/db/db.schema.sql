@@ -9,4 +9,5 @@ CREATE TABLE VedDrop (
     download_count  INTEGER                  NOT NULL DEFAULT 0,
     failed_attempts INTEGER                  NOT NULL DEFAULT 0,
     file_type       TEXT                     NOT NULL DEFAULT 'application/octet-stream'
+    storage_key     TEXT                     NOT NULL UNIQUE
 );

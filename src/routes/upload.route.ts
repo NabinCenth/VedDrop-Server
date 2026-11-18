@@ -17,13 +17,16 @@ uploadRouter.post("/init", VerifyUplMeta, async (req: Request, res: Response) =>
     "X-File-Name": fileName ?? "unknown",
     "Content-Type": fileType?? "application/octet-stream",
     "Content-Length": req.get("Content-Length") ?? "0",
+    uploadId: fileId
   };
   const pin = generatePin();
 
-  // pool.query(
-  //   "INSERT INTO VedDrop (file_id, file_name, file_type, file_size,pin_hash) VALUES ($1, $2, $3, $4)",
-  //   [fileId, data["X-File-Name"], data["Content-Type"], data["Content-Length"], pin],
-  // );
+  const result = await pool.query(
+    "INSERT INTO VedDrop (storage_key, file_name, file_type, file_size,pin_hash) VALUES ($1, $2, $3, $4,$5)   RETURNING file_id",
+    [fileId, data["X-File-Name"], data["Content-Type"], data["Content-Length"], pin],
+  );
+  const uploadId = result.rows[0].file_id;
+  data.uploadId = uploadId;
 
   res.status(200).json(data);
 });
