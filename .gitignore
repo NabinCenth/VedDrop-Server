@@ -11,6 +11,7 @@ node_modules
 dist
 dist-ssr
 *.local
+*.git
 
 # Editor directories and files
 .vscode/*
@@ -26,13 +27,10 @@ dist-ssr
 files.json
 \files.json
 # Ignore the JSON database
-files.json
-
-# Ignore the entire uploads folder
-
 
 # Ignore node_modules (Standard for Node.js)
 node_modules/
 files.json
 process.env
 .env
+API.md
