@@ -3,7 +3,7 @@ import { s3Client } from "../config/bucket.config.js";
 
 const result = await s3Client.send(
   new GetBucketCorsCommand({
-    Bucket: "VedDrop"
+    Bucket: process.env.B2_BUCKET_NAME as string
   })
 );
 

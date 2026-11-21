@@ -4,10 +4,9 @@ import { GetObjectCommand } from "@aws-sdk/client-s3";
 import type {Request,Response} from "express";
 import { pipeline } from "node:stream/promises";
 
-const controller =new AbortController();
-
 const pool = PoolConn();
 export async function downloadgateway(req: Request,res:Response){
+    const controller =new AbortController();
     const Pin=req.body.pin;
     res.on('close', () => controller.abort());
 
@@ -16,8 +15,8 @@ export async function downloadgateway(req: Request,res:Response){
         const result = await pool.query("SELECT   file_name, file_size,status,storage_key FROM VedDrop WHERE pin_hash=$1",[Pin]);
         console.log("Query result:", result.rows[0].file_size);
         if(result.rows.length===0){
-            return res.status(404).json({message: "Invalid Pin"});
-        }
+            return res.status(404).json({ message: "Invalid Pin" });
+        };
         const fileName=result.rows[0].file_name;
         const fileSize=result.rows[0].file_size;
         const status=result.rows[0].status;
@@ -37,10 +36,11 @@ export async function downloadgateway(req: Request,res:Response){
             const response = await s3Client.send(command,{abortSignal: controller.signal as AbortSignal});
         const contentType = response.ContentType || 'application/octet-stream';
        if(contentType) {res.setHeader('Content-Type', contentType);}
-        res.setHeader('Content-Deposition','attachment');
-       response.ContentLength? res.setHeader('Content-Length',response.ContentLength?.toString()as string):
+        res.setHeader('Content-Disposition', `attachment; filename="${fileName}"`);
+
+       response.ContentLength? 
+       res.setHeader('Content-Length',response.ContentLength?.toString()as string):
             null;
-            // i need to learn about the piping method and impoement here
             await pipeline(response.Body as NodeJS.ReadableStream, res, { signal: controller.signal });
        
             }
@@ -56,9 +56,8 @@ export async function downloadgateway(req: Request,res:Response){
         res.status(500).json({message: "Internal Server Error"});
     }
     finally{
-        res.off('close',()=>{
-            controller.abort();
-        })
+          console.log("Client disconnected, aborting the download");
+        res.off('close',() => controller.abort())
     }
 console.log("Pin received:", Pin);
 
