@@ -6,8 +6,9 @@ import { VerifyUplMeta } from "../utils/middleware/checkUplMeta.js";
 import { generatePin,generateStorageKey } from "../utils/PinGenerator.js";
 export const uploadRouter = Router();
 const pool = PoolConn();
-const fileId=generateStorageKey();//STorage Key for the bucket and File ID for the database
+
 uploadRouter.post("/init", VerifyUplMeta, async (req: Request, res: Response) => {
+  const fileId=generateStorageKey();//STorage Key for the bucket and File ID for the database
   console.log("Received upload initiation request");
   const {fileName, fileType, fileSize} = req.body;
   const uploadUrl= await PutUrl(fileType,fileName,fileSize,fileId);
